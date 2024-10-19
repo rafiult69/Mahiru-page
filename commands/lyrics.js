@@ -1,45 +1,44 @@
 const axios = require('axios');
 const { sendMessage } = require('../handles/sendMessage');
+const fs = require('fs');
+
+const token = fs.readFileSync('token.txt', 'utf8');
 
 module.exports = {
   name: 'lyrics',
   description: 'Fetch song lyrics',
-  author: 'coffee',
+  usage: '-lyrics <song name>',
+  author: 'Coffee',
 
   async execute(senderId, args) {
-    if (!Array.isArray(args) || !args.length) {
-      return sendError(senderId, 'Error: Please provide a song name!');
-    }
-
-    const songQuery = args.join(' ').trim();
+    const pageAccessToken = token;
+    const songQuery = args.join(' ') || 'Never Gonna Give You Up';
     const apiUrl = `https://joshweb.click/search/lyrics?q=${encodeURIComponent(songQuery)}`;
 
     try {
       const { data: { result: lyricsData } } = await axios.get(apiUrl);
 
       if (!lyricsData || !lyricsData.lyrics) {
-        return sendError(senderId, 'Error: Lyrics not found.');
+        return await sendError(senderId, 'Error: Lyrics not found.');
       }
 
       const { title, artist, lyrics, image } = lyricsData;
-      const lyricsMessage = `🎶 | *Title:* ${title}\n*Artist:* ${artist}\n\n*Lyrics:*\n${lyrics}`;
+      const lyricsMessage = `🎧 | 𝐓𝐢𝐭𝐥𝐞: ${title}\n🎙️ | 𝐀𝐫𝐭𝐢𝐬𝐭: ${artist}\n\n${lyrics}`;
 
-      // Send the lyrics message first
-      await sendMessage(senderId, { text: lyricsMessage });
+      await sendMessage(senderId, { text: lyricsMessage }, pageAccessToken);
 
-      // If an image is available, send it as a second message
       if (image) {
         await sendMessage(senderId, {
           attachment: { type: 'image', payload: { url: image } }
-        });
+        }, pageAccessToken);
       }
     } catch (error) {
       console.error('Error fetching lyrics:', error);
-      sendError(senderId, 'Error: Unable to fetch lyrics.');
+      await sendError(senderId, 'Error: Unable to fetch lyrics.');
     }
   },
 };
 
 const sendError = async (senderId, errorMessage) => {
-  await sendMessage(senderId, { text: errorMessage });
+  await sendMessage(senderId, { text: errorMessage }, token);
 };
