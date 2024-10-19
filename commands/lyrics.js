@@ -7,7 +7,7 @@ const token = fs.readFileSync('token.txt', 'utf8');
 module.exports = {
   name: 'lyrics',
   description: 'Fetch song lyrics',
-  usage: '-lyrics <song name>',
+  usage: 'lyrics <song name>',
   author: 'Coffee',
 
   async execute(senderId, args) {
