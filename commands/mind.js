@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 module.exports = {
-  name: 'llama',
+  name: 'mind',
   description: 'talk to llama ',
   author: 'developer',
   async execute(senderId, args, pageAccessToken, sendMessage) {
